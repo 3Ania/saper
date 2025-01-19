@@ -72,13 +72,6 @@ int odkryj(int x, int y, int n, int m, int plansza[n][m], int odkryte[n][m], int
     return ile;
 }
 
-int ileCyfr(int x, char komenda[50]){
-    while(komenda[x] != ' ' && komenda[x] != '\n'){
-        x++;
-    }
-    return x;
-}
-
 int pobierzLiczbe(int l, char komenda[50], char liczba[50], int iLiczby){
     int o = 0;
     for(; l<iLiczby; l++){
@@ -194,7 +187,6 @@ int main(){
             printf("Podano zla nazwe poziomu gry. Prosze podac jedna z dostepnych (liczbe lub nazwe trudnosci)\n\n");
         }
     }
-
     int start = time(NULL);
 
     czysc();
@@ -212,54 +204,71 @@ int main(){
     int ileNieOdkrytych = n*m - iloscBomb, ileNieOdkrytychPol = ileNieOdkrytych;
     int pierwszePrzejscie = 0;
 
-    char komenda[50], liczba[50];
-    int iL1, iL2, l1, l2;
+    // char komenda[50], liczba[50];
+    // int iL1, iL2, x, y;
     int czySiePowiodlo;
 
     wypiszPlansze(n, m, plansza, odkryte, flagi, iloscBomb, ileNieOdkrytych);
 
     stop = 1;
+    char komenda = 'x', xc = 'x', yc = 'x';
+    int x = 0, y = 0, czy_przejsc = 1;
+    int wynik1;
     while(ileNieOdkrytych > 0 && stop == 1){
         czySiePowiodlo = 0; // nie
         printf("> ");
-        fgets(komenda, sizeof(komenda), stdin);
-
-        if(komenda[1] != ' ' || (komenda[0] != 'f' && komenda[0] != 'r')) printf("Podano zla formule komendy. Komenda powinna wygladac nastepujaco:\nf/r x y\ngdzie f/r to wybor czy odkrywamy pole(r) czy stawiamy flage(f), a x oraz y to wspolczynniki pola, do ktorego ma sie odnosic akcja.\n");
-        else{
-            iL1 = ileCyfr(2, komenda);
-            memset(liczba, '\0', sizeof(liczba)); // Ustawia wszystkie elementy na '\0'
-            l1 = pobierzLiczbe(2, komenda, liczba, iL1);
-
-            iL2 = ileCyfr(iL1+1, komenda);
-            memset(liczba, '\0', sizeof(liczba)); // Ustawia wszystkie elementy na '\0'
-            l2 = pobierzLiczbe(iL1 + 1, komenda, liczba, iL2);
-
-            if(l1 < 1 || l2 < 1 || l1 > n || l2 > m) printf("Podane koordynaty musza byc dodatnie oraz nie wieksze od rozmiarow planszy\n");
+        
+        komenda = 'x', xc = 'x', yc = 'x';
+        x = 0, y = 0, czy_przejsc = 1;
+        wynik1 = scanf("%c %d %d", &komenda, &x, &y);
+        if(wynik1 != 3){
+            if(wynik1 == 1 && scanf("%c %c", &xc, &yc) != 2){
+                czy_przejsc = 0;
+                while (getchar() != '\n');
+                printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
+                printf("Podano zla formule komendy. Komenda powinna wygladac nastepujaco:\nf/r x y\ngdzie f/r to wybor czy odkrywamy pole(r) czy stawiamy flage(f), a x oraz y to wspolczynniki pola, do ktorego ma sie odnosic akcja.\n");
+            }else if(wynik1 == 2 && scanf("%c", &yc) != 1){
+                czy_przejsc = 0;
+                while (getchar() != '\n');
+                printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
+                printf("Podano zla formule komendy. Komenda powinna wygladac nastepujaco:\nf/r x y\ngdzie f/r to wybor czy odkrywamy pole(r) czy stawiamy flage(f), a x oraz y to wspolczynniki pola, do ktorego ma sie odnosic akcja.\n");
+            }else{
+                printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
+                if(x == 0 && xc >= 'A' && xc <= 'Z') x = xc - 'A' + 10;
+                else if(x == 0 && xc >= 'a' && xc <= 'z') x = xc - 'a' + 10;
+                if(y == 0 && yc >= 'A' && yc <= 'Z') y = yc - 'A' + 10;
+                else if(y == 0 && yc >= 'a' && yc <= 'z') y = yc - 'a' + 10;
+                printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
+                while (getchar() != '\n');
+            }
+        }else while (getchar() != '\n');
+        if(czy_przejsc == 1){
+            if(x < 1 || y < 1 || x > n || y > m) printf("Podane koordynaty musza byc dodatnie oraz nie wieksze od rozmiarow planszy. Moga byc podane takze w postaci litery alfabetu, gdzie A = 10, B = 11, itd.\n");
             else{
-                l1--;
-                l2--;
-                if(komenda[0] == 'f'){
+                x--;
+                y--;
+                if(komenda == 'f'){
                     if(pierwszePrzejscie == 0) printf("Przed stawianiem flag odkryj pierwsze pole\n");
                     else{
-                        if(flagi[l1][l2] == 0) flagi[l1][l2] = 1; // stawiamy flage w danym miejscu
-                        else flagi[l1][l2] = 0; // usuwamy flage z pola
+                        if(flagi[x][y] == 0) flagi[x][y] = 1; // stawiamy flage w danym miejscu
+                        else flagi[x][y] = 0; // usuwamy flage z pola
                         czySiePowiodlo = 1; //tak
                     }
-                }else if(komenda[0] == 'r'){
+                }else if(komenda == 'r'){
                     czySiePowiodlo = 1; // tak
                     if(pierwszePrzejscie == 0){
-                        stworzPlansze(n,m,p,plansza, iloscBomb, l1, l2);
+                        stworzPlansze(n,m,p,plansza, iloscBomb, x, y);
                         pierwszePrzejscie++;
                     }
-                    if(flagi[l1][l2] == 1){ // jeżeli na danym polu jest flaga, usuwa flage, ale nie odkrywa pola
-                        flagi[l1][l2] = 0;
+                    if(flagi[x][y] == 1){ // jeżeli na danym polu jest flaga, usuwa flage, ale nie odkrywa pola
+                        flagi[x][y] = 0;
                     }else{
-                        odkryte[l1][l2] = 1;
+                        odkryte[x][y] = 1;
                         ileNieOdkrytych--;
-                        if(plansza[l1][l2] == iloscBomb+1){
+                        if(plansza[x][y] == iloscBomb+1){
                             ileNieOdkrytych++; //bomba nie zalicza sie do odkrytych pol
                             stop = 0;
-                        }else ileNieOdkrytych = odkryj(l1, l2, n, m, plansza, odkryte, ileNieOdkrytych, iloscBomb);
+                        }else ileNieOdkrytych = odkryj(x, y, n, m, plansza, odkryte, ileNieOdkrytych, iloscBomb);
                     }
                 }else{
                     printf("Zle podany pierwszy argument. Dostepne opcje:\n r - odkrywanie pola\n f - stawianie flagi\nPodaj poprawna komende.\n");

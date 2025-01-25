@@ -4,6 +4,18 @@
 #include <time.h>
 #include <windows.h>
 
+typedef struct{
+    int n,m, t; // n x m - rozmiary planszy, p - prawdopodobienstwo wystapienia bomby na danym polu, t - maksymalna ilosc czasu w minutach
+    double p;
+    int mnoznik;
+}zmienne;
+
+typedef struct{
+    char nazwa[20];
+    int wynik;
+    int ilosc;
+}leaderboard;
+
 void czysc(){ //czysci konsole
     printf("\033[H\033[J");
 }
@@ -72,23 +84,6 @@ int odkryj(int x, int y, int n, int m, int plansza[n][m], int odkryte[n][m], int
     return ile;
 }
 
-int pobierzLiczbe(int l, char komenda[50], char liczba[50], int iLiczby){
-    int o = 0;
-    for(; l<iLiczby; l++){
-        liczba[o] = komenda[l];
-        o++;
-    }
-    int zwroc;
-    if(liczba[0] >= 'A' && liczba[0] <= 'Z'){
-        zwroc = 10 + liczba[0] - 'A';
-    }else if(liczba[0] >= 'a' && liczba[0] <= 'z'){
-        zwroc = 10 + liczba[0] - 'a';
-    }else{
-        zwroc = atoi(liczba);
-    }
-    return zwroc;
-}
-
 void wypiszPlansze(int n, int m, int plansza[n][m], int odkryte[n][m], int flagi[n][m], int iloscBomb, int ileNieOdkrytych){
     czysc();
     printf("------SAPER------\n\n");
@@ -135,18 +130,8 @@ double wypiszCzas(int start){
     return (double)(koniec-start) / 60;
 }
 
-int main(){
-    srand(time(NULL));
-
-    int i, j;
-    czysc();
-
-    printf("------SAPER------\n\n");
-    int n,m, t; // n x m - rozmiary planszy, p - prawdopodobienstwo wystapienia bomby na danym polu, t - maksymalna ilosc czasu w minutach
-    double p;
-    int mnoznik;
+zmienne pobierz_zmienne(zmienne w){
     int stop = 1;
-
     while(stop){
         printf("Wybierz poziom trudności z dostępnych:\n1. Latwy\n2. Sredni\n3. Trudny\n4. Wlasna plansza\n\n");
         char wybor[20];
@@ -155,73 +140,61 @@ int main(){
         wybor[strcspn(wybor, "\n")] = '\0'; // Usuwa znak znak konca linii z pobranego tekstu
 
         if(stricmp(wybor, "latwy") == 0 || stricmp(wybor, "1") == 0 || stricmp(wybor, "1.") == 0){
-            n=8, m=8, p=0.1, mnoznik = 1, t = 10;
+            w.n=8, w.m=8, w.p=0.1, w.mnoznik = 1, w.t = 10;
             stop = 0;
         }else if(stricmp(wybor, "sredni") == 0 || stricmp(wybor, "2") == 0 || stricmp(wybor, "2.") == 0){
-            n=16,m=16, p=0.15, mnoznik = 2, t = 40;
+            w.n=16,w.m=16, w.p=0.15, w.mnoznik = 2, w.t = 40;
             stop = 0;
         }else if(stricmp(wybor, "trudny") == 0 || stricmp(wybor, "3") == 0 || stricmp(wybor, "3.") == 0){
-            n=16,m=32, p=0.2, mnoznik = 3, t = 99;
+            w.n=16,w.m=32, w.p=0.2, w.mnoznik = 3, w.t = 99;
             stop = 0;
         }else if(stricmp(wybor, "wlasna plansza") == 0 || stricmp(wybor, "4") == 0 || stricmp(wybor, "4.") == 0){
             printf("Proszę podac wielkosc planszy w formacie axb gdzie a to liczba wierszy a b to liczba kolumn: ");
-            if(scanf("%dx%d", &n, &m) == 2) stop = 2; // przechodzi zeby pobrac limit czasu
+            if(scanf("%dx%d", &w.n, &w.m) == 2) stop = 2; // przechodzi zeby pobrac limit czasu
             else{ // pobieranie od poczatku
                 czysc();
                 printf("Podano rozmiary planszy w zlym formacie. Prosze zapisac je w formacie axb, gdzie a to liczba wierszy a b to liczba kolumn\n\n");
-                while (getchar() != '\n'); // czyszczenie bufora
             }
-            
+            while (getchar() != '\n'); // czyszczenie bufora
             if(stop == 2){
                 printf("Proszę podac limit czasu na gre: ");
-                if(scanf("%d", &t) == 1) stop = 0; // pobrano wszystkie dane, mozna wyjsc z petli
+                if(scanf("%d", &w.t) == 1) stop = 0; // pobrano wszystkie dane, mozna wyjsc z petli
                 else{ // pobieranie od poczatku
                     czysc();
                     printf("Podano limit czasu w zlym formacie. Prosze podac liczbe calkowita\n\n");
-                    while (getchar() != '\n'); // czyszczenie bufora
                 }
+                while (getchar() != '\n'); // czyszczenie bufora
             }
-            p=0.2, mnoznik = 2;
+            w.p=0.2, w.mnoznik = 2;
         }else{
             czysc();
             printf("Podano zla nazwe poziomu gry. Prosze podac jedna z dostepnych (liczbe lub nazwe trudnosci)\n\n");
         }
     }
-    int start = time(NULL);
+    return w;
+}
 
-    czysc();
-    printf("------SAPER------\n\n");
-
-    int plansza[n][m];
-    int odkryte[n][m]; // odkryte = 1, nie odtyte = 0
-    int flagi[n][m]; // flaga = 1, brak flagi = 0
-    wypelnij0(n, m, odkryte);
-    wypelnij0(n,m,flagi);
-
-    int iloscBomb = n*m*p;
-    if(rand()%2 == 0) iloscBomb++;
-
-    int ileNieOdkrytych = n*m - iloscBomb, ileNieOdkrytychPol = ileNieOdkrytych;
-    int pierwszePrzejscie = 0;
-
-    // char komenda[50], liczba[50];
-    // int iL1, iL2, x, y;
-    int czySiePowiodlo;
-
-    wypiszPlansze(n, m, plansza, odkryte, flagi, iloscBomb, ileNieOdkrytych);
-
-    stop = 1;
+int pobierz_i_wykonaj_komendy(int n, int m, int ileNieOdkrytych, int plansza[n][m], int odkryte[n][m], int flagi[n][m], int iloscBomb, int mnoznik, int p, int ileNieOdkrytychPol, int start, int t){
+    int stop = 1, czySiePowiodlo;
     char komenda = 'x', xc = 'x', yc = 'x';
     int x = 0, y = 0, czy_przejsc = 1;
     int wynik1;
+    int pierwszePrzejscie = 0;
     while(ileNieOdkrytych > 0 && stop == 1){
         czySiePowiodlo = 0; // nie
         printf("> ");
-        
+
         komenda = 'x', xc = 'x', yc = 'x';
         x = 0, y = 0, czy_przejsc = 1;
-        wynik1 = scanf("%c %d %d", &komenda, &x, &y);
-        if(wynik1 != 3){
+        wynik1 = scanf("%c ", &komenda);
+        if(komenda != 'r' && komenda != 'f'){
+            printf("Zle podany pierwszy argument. Dostepne opcje:\n r - odkrywanie pola\n f - stawianie flagi\nPodaj poprawna komende.\n");
+            czy_przejsc = 0;
+        }
+        else{
+            wynik1 += scanf("%d %d", &x, &y);
+        }
+        if(czy_przejsc && wynik1 != 3){
             if(wynik1 == 1 && scanf("%c %c", &xc, &yc) != 2){
                 czy_przejsc = 0;
                 while (getchar() != '\n');
@@ -233,7 +206,6 @@ int main(){
                 printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
                 printf("Podano zla formule komendy. Komenda powinna wygladac nastepujaco:\nf/r x y\ngdzie f/r to wybor czy odkrywamy pole(r) czy stawiamy flage(f), a x oraz y to wspolczynniki pola, do ktorego ma sie odnosic akcja.\n");
             }else{
-                printf("%c, %c, %c, %d, %d\n", komenda, xc, yc, x, y);
                 if(x == 0 && xc >= 'A' && xc <= 'Z') x = xc - 'A' + 10;
                 else if(x == 0 && xc >= 'a' && xc <= 'z') x = xc - 'a' + 10;
                 if(y == 0 && yc >= 'A' && yc <= 'Z') y = yc - 'A' + 10;
@@ -285,11 +257,111 @@ int main(){
             }
         }
     }
+    int wynik = mnoznik * (ileNieOdkrytychPol - ileNieOdkrytych);
     if(ileNieOdkrytych == 0){
-        printf("Wygrales!!! Ilosc zdobytych punktow: %d\n", mnoznik * (ileNieOdkrytychPol - ileNieOdkrytych));
+        printf("Wygrales!!! Ilosc zdobytych punktow: %d\n", wynik);
     }else{
         printf("Przegrales!\n");
     }
+    return wynik;
+}
+
+void wypiszLeaderboard(FILE *plik){
+    int i = 0, punkty;
+    char nazwa[20];
+    for(; i < 5 && fscanf(plik, "%s ; %d", &nazwa, &punkty) == 2; i++){
+        if(i == 0) printf("Tablica wynikow: \n");
+        printf("%d. %s  %d\n", i+1, nazwa, punkty);
+    }
+}
+
+leaderboard* pobierzWyniki(FILE *plik, leaderboard wyniki[5]){
+    int i = 0;
+    for(; i < 5 && fscanf(plik, "%s ; %d", &wyniki[i].nazwa, &wyniki[i].wynik) == 2; i++){}
+    // if(i == 4) i++; // i = 4 oznacza, ze jest 5 wynikow, ktore sie poprawnie pobralo, wiec ilosc ma wynosic 5
+    wyniki[0].ilosc = i;
+    return wyniki;
+}
+
+void dodajWynik(FILE * plik, int wynik, char nazwa[20]){
+    leaderboard *wyniki = malloc(5 * sizeof(leaderboard));
+    wyniki = pobierzWyniki(plik, wyniki);
+    leaderboard temp;
+    int i;
+    // printf("weszlo %d\n", wyniki[0].ilosc);
+    for(i = 0; i < wyniki[0].ilosc; i++){
+        if(wynik > wyniki[i].wynik){
+            temp = wyniki[i];
+            wyniki[i].wynik = wynik;
+            strcpy(wyniki[i].nazwa, nazwa);
+            wynik = temp.wynik;
+            nazwa = temp.nazwa;
+        }
+        // printf("%s, %d\n", wyniki[i].nazwa, wyniki[i].wynik);
+        // printf("%s, %d\n", nazwa, wynik);
+    }
+    FILE *p = fopen("wyniki.txt", "w");
+    // printf("wyniki[0].ilosc: %d\n", wyniki[0].ilosc);
+    for(i = 0; i < wyniki[0].ilosc; i++) {
+        fprintf(p, "%s ; %d\n", wyniki[i].nazwa, wyniki[i].wynik);
+        // printf("%s ; %d\n", wyniki[i].nazwa, wyniki[i].wynik);
+    }
+    // printf("i: %d\n", i);
+    if(i < 5){
+        fprintf(p, "%s ; %d\n", nazwa, wynik);
+    }
+    fclose(p);
+}
+
+int main(){
+    srand(time(NULL));
+    FILE *plik = fopen("wyniki.txt", "r");
+
+    int i, j;
+    czysc();
+
+    printf("------SAPER------\n\n");
+
+    zmienne wartosci = pobierz_zmienne(wartosci);
+    int n = wartosci.n, m = wartosci.m, t = wartosci.t;
+    double p = wartosci.p;
+    int mnoznik = wartosci.mnoznik;
+    
+    int start = time(NULL);
+
+    czysc();
+    printf("------SAPER------\n\n");
+
+    int plansza[n][m];
+    int odkryte[n][m]; // odkryte = 1, nie odtyte = 0
+    int flagi[n][m]; // flaga = 1, brak flagi = 0
+    wypelnij0(n, m, odkryte);
+    wypelnij0(n,m,flagi);
+
+    int iloscBomb = n*m*p;
+    if(rand()%2 == 0) iloscBomb++;
+
+    int ileNieOdkrytych = n*m - iloscBomb, ileNieOdkrytychPol = ileNieOdkrytych;
+
+    wypiszPlansze(n, m, plansza, odkryte, flagi, iloscBomb, ileNieOdkrytych);
+
+    int wynik = pobierz_i_wykonaj_komendy(n, m, ileNieOdkrytych, plansza, odkryte, flagi, iloscBomb, mnoznik, p, ileNieOdkrytychPol, start, t);
+
+    printf("Prosze podac nazwe uzytkownika: ");
+    char nazwa[20];
+    int dlugosc = 21;
+    i = 0;
+    while(dlugosc > 20){
+        if(i == 1) printf("Nazwa uzytkownika moze miec maksymalnie 20 znakow. Prosze podac inna nazwe: ");
+        scanf("%s", &nazwa);
+        dlugosc = strlen(nazwa);
+        i = 1;
+    }
+    dodajWynik(plik, wynik, nazwa);
+    fclose(plik);
+    plik = fopen("wyniki.txt", "r");
+    wypiszLeaderboard(plik);
+    fclose(plik);
 }
 
 // 0 - puste, liczba - liczba do wypisania (ilosc bomb naokolo), ileBomb+1 - bomba

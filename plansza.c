@@ -4,17 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <windows.h>
 
 void stworzPlansze(int n, int m, double p, int plansza[n][m], int iloscBomb, int a, int b){
     int i, j;
     wypelnij0(n, m, plansza);
 
+    printf("tworze... %d, ", iloscBomb);
     i = 0;
     int x,y;
     while(i < iloscBomb){
         x = rand()%n;
         y = rand()%m;
-        if(plansza[x][y] == 0 && (abs(x-a) > 1 && abs(y-b) > 1)){ // puste pole
+        if((plansza[x][y] == 0 || plansza[x][y] == -1) && (abs(x-a) > 1 || abs(y-b) > 1)){ // puste pole
+            printf("%d-%d, ", x, y);
             plansza[x][y] = 9; // bomba
             i++;
         }

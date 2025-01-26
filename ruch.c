@@ -131,11 +131,13 @@ int pobierz_i_wykonaj_komendy(int n, int m, int ileNieOdkrytych, int plansza[n][
                         czySiePowiodlo = 1; //tak
                     }
                 }else if(komenda == 'r'){
+                    printf("weszlo");
                     czySiePowiodlo = 1; // tak
                     if(pierwszePrzejscie == 0){
                         if(plansza[0][0] == -1) stworzPlansze(n,m,p,plansza, iloscBomb, x, y);
                         pierwszePrzejscie++;
                     }
+                    printf("przeszlo ");
                     if(flagi[x][y] == 1){ // jeżeli na danym polu jest flaga, usuwa flage, ale nie odkrywa pola
                         flagi[x][y] = 0;
                     }else{

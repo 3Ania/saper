@@ -11,7 +11,7 @@
 zmienne pobierz_zmienne(zmienne w){
     int stop = 1;
     while(stop){
-        printf("Wybierz poziom trudności z dostępnych:\n1. Latwy\n2. Sredni\n3. Trudny\n4. Wlasna plansza\n\n");
+        printf("Wybierz poziom trudnosci z dostepnych:\n1. Latwy\n2. Sredni\n3. Trudny\n4. Wlasna plansza\n\n");
         char wybor[20];
         printf("Prosze wpisac nazwe poziomu trudnosci lub liczbe jej odpowiadajaca: ");
         fgets(wybor, 20, stdin);
@@ -27,7 +27,7 @@ zmienne pobierz_zmienne(zmienne w){
             w.n=16,w.m=32, w.p=0.2, w.mnoznik = 3, w.t = 99;
             stop = 0;
         }else if(stricmp(wybor, "wlasna plansza") == 0 || stricmp(wybor, "4") == 0 || stricmp(wybor, "4.") == 0){
-            printf("Proszę podac wielkosc planszy w formacie axb gdzie a to liczba wierszy a b to liczba kolumn: ");
+            printf("Prosze podac wielkosc planszy w formacie axb gdzie a to liczba wierszy a b to liczba kolumn: ");
             if(scanf("%dx%d", &w.n, &w.m) == 2) stop = 2; // przechodzi zeby pobrac limit czasu
             else{ // pobieranie od poczatku
                 czysc();
@@ -35,11 +35,11 @@ zmienne pobierz_zmienne(zmienne w){
             }
             while (getchar() != '\n'); // czyszczenie bufora
             if(stop == 2){
-                printf("Proszę podac limit czasu na gre: ");
-                if(scanf("%d", &w.t) == 1) stop = 0; // pobrano wszystkie dane, mozna wyjsc z petli
+                printf("Prosze podac limit czasu na gre: ");
+                if(scanf("%d", &w.t) == 1 && w.t>0) stop = 0; // pobrano wszystkie dane, mozna wyjsc z petli
                 else{ // pobieranie od poczatku
                     czysc();
-                    printf("Podano limit czasu w zlym formacie. Prosze podac liczbe calkowita\n\n");
+                    printf("Podano limit czasu w zlym formacie. Prosze podac liczbe naturalna\n\n");
                 }
                 while (getchar() != '\n'); // czyszczenie bufora
             }

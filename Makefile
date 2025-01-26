@@ -1,12 +1,12 @@
 CC=gcc
 objects = saper.o poczatek_gry.o ruch.o podsumowanie.o naj_wyniki.o plansza.o uproszczenie_kodu.o
 
-all: $(objects)
-	$(CC) $^ -o all
+saper: $(objects)
+	$(CC) $^ -o saper
 
 $(objects) : %.o:%.c
 	$(CC) -c $^ -o $@
-	
+
 test_program: test_program.c
 	$(CC) test_program.c -o test_program
 
@@ -15,4 +15,4 @@ test:
 
 .PHONY: clean
 clean:
-	del $(objects) all
+	del $(objects) saper

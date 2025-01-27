@@ -29,9 +29,10 @@ void dodajWynik(FILE * plik, int wynik, char nazwa[20]){
         if(wynik > wyniki[i].wynik){
             temp = wyniki[i];
             wyniki[i].wynik = wynik;
+            memset(wyniki[i].nazwa, 0, sizeof(wyniki[i].nazwa));
             strcpy(wyniki[i].nazwa, nazwa);
             wynik = temp.wynik;
-            nazwa = temp.nazwa;
+            strcpy(nazwa, temp.nazwa);
         }
     }
     FILE *p = fopen("wyniki.txt", "w");

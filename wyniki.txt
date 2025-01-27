@@ -1,5 +1,5 @@
-abc ; 160
-ad ; 160
-ok ; 160
-w ; 160
-a ; 160
+nazwa2 ; 270
+nazwa_uz ; 260
+x ; 189
+ok ; 158
+nazwa ; 132

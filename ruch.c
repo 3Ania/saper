@@ -68,8 +68,11 @@ dane pobierz_od_gracza(){
         printf("Zle podany pierwszy argument. Dostepne opcje:\n r - odkrywanie pola\n f - stawianie flagi\nPodaj poprawna komende.\n");
         czy_przejsc = 0;
     }else{
-        wynik1 += scanf("%c ", &xc);
-        if(wynik1 == 2){
+        wynik1 += scanf("%c", &xc);
+        if(getchar() != ' '){
+            printf("Prosze podac cyfre lub litere.");
+            czy_przejsc=0;
+        }else if(wynik1 == 2){
             x = zamien(xc);
             wynik1 += scanf("%c", &yc);
             if(wynik1 == 3){
@@ -131,13 +134,11 @@ int pobierz_i_wykonaj_komendy(int n, int m, int ileNieOdkrytych, int plansza[n][
                         czySiePowiodlo = 1; //tak
                     }
                 }else if(komenda == 'r'){
-                    printf("weszlo");
                     czySiePowiodlo = 1; // tak
                     if(pierwszePrzejscie == 0){
                         if(plansza[0][0] == -1) stworzPlansze(n,m,p,plansza, iloscBomb, x, y);
                         pierwszePrzejscie++;
                     }
-                    printf("przeszlo ");
                     if(flagi[x][y] == 1){ // jeżeli na danym polu jest flaga, usuwa flage, ale nie odkrywa pola
                         flagi[x][y] = 0;
                     }else{
